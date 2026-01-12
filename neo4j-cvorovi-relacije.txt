@@ -1,0 +1,58 @@
+//Studenti
+CREATE (Alice:Student {id:'1', ime:'Alice', prezime:'Petrović', email:'alice@example.com', godinaStudija:2})
+CREATE (Bob:Student {id:'2', ime:'Bob', prezime:'Jovanović', email:'bob@example.com', godinaStudija:3})
+CREATE (Teodora:Student {id:'3', ime:'Teodora', prezime:'Stojanović', email:'teodora@example.com', godinaStudija:1})
+CREATE (Marko:Student {id:'4', ime:'Marko', prezime:'Nikolić', email:'marko@example.com', godinaStudija:2})
+CREATE (Jelena:Student {id:'5', ime:'Jelena', prezime:'Matić', email:'jelena@example.com', godinaStudija:3})
+
+//Mentori
+CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5})
+CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4})
+CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3})
+
+//Predmeti
+CREATE (Matematika:Predmet {id:'1', naziv:'Matematika', semestar:1})
+CREATE (Fizika:Predmet {id:'2', naziv:'Fizika', semestar:2})
+CREATE (Programiranje:Predmet {id:'3', naziv:'Programiranje', semestar:2})
+
+//Sesije
+CREATE (S1:Sesija {id:'1', tema:'Integrali'})
+CREATE (S2:Sesija {id:'2', tema:'Kinematika'})
+CREATE (S3:Sesija {id:'3', tema:'C# Osnove'})
+CREATE (S4:Sesija {id:'4', tema:'Algoritmi'})
+
+//Termini
+CREATE (T1:Termin {id:'1', datum:'2026-01-15', vreme:'10:00'})
+CREATE (T2:Termin {id:'2', datum:'2026-01-16', vreme:'14:00'})
+CREATE (T3:Termin {id:'3', datum:'2026-01-17', vreme:'09:00'})
+CREATE (T4:Termin {id:'4', datum:'2026-01-18', vreme:'13:00'})
+
+
+//Relacije
+CREATE (Alice)-[:SLUSA]->(Matematika)
+CREATE (Bob)-[:SLUSA]->(Fizika)
+CREATE (Teodora)-[:SLUSA]->(Matematika)
+CREATE (Marko)-[:SLUSA]->(Programiranje)
+CREATE (Jelena)-[:SLUSA]->(Programiranje)
+
+CREATE (Maja)-[:POKRIVA_PREDMET]->(Matematika)
+CREATE (Nikola)-[:POKRIVA_PREDMET]->(Fizika)
+CREATE (Petar)-[:POKRIVA_PREDMET]->(Programiranje)
+
+CREATE (Maja)-[:PREDAVAO_POMOC]->(S1)
+CREATE (Nikola)-[:PREDAVAO_POMOC]->(S2)
+CREATE (Petar)-[:PREDAVAO_POMOC]->(S3)
+CREATE (Petar)-[:PREDAVAO_POMOC]->(S4)
+
+CREATE (Alice)-[:POHAĐA]->(S1)
+CREATE (Teodora)-[:POHAĐA]->(S1)
+CREATE (Bob)-[:POHAĐA]->(S2)
+CREATE (Marko)-[:POHAĐA]->(S3)
+CREATE (Jelena)-[:POHAĐA]->(S3)
+CREATE (Alice)-[:POHAĐA]->(S4)
+CREATE (Marko)-[:POHAĐA]->(S4)
+
+CREATE (S1)-[:ZAKAZANA_U]->(T1)
+CREATE (S2)-[:ZAKAZANA_U]->(T2)
+CREATE (S3)-[:ZAKAZANA_U]->(T3)
+CREATE (S4)-[:ZAKAZANA_U]->(T4)
