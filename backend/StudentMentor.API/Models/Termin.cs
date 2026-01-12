@@ -5,10 +5,10 @@ namespace StudentMentorAPI.Models
 {
     public class Termin
     {
-        public string? Id { get; set; }
-        public DateTime Datum { get; set; }
-        public TimeSpan VremeOd { get; set; }
-        public TimeSpan VremeDo { get; set; }
+        public string? id { get; set; }
+        public DateTime datum { get; set; }
+        public DateTime vremeOd { get; set; }
+        public DateTime vremeDo { get; set; }
         
     }
 }

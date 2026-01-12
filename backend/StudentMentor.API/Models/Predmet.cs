@@ -5,9 +5,9 @@ namespace StudentMentorAPI.Models
 {
     public class Predmet
     {
-        public string? Id { get; set; }
-        public string? Naziv { get; set; }
-        public int? Semestar { get; set; }
+        public string? id { get; set; }
+        public string? naziv { get; set; }
+        public int? semestar { get; set; }
 
     }
 }

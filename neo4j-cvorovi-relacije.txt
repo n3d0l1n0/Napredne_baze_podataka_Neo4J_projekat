@@ -16,16 +16,16 @@ CREATE (Fizika:Predmet {id:'2', naziv:'Fizika', semestar:2})
 CREATE (Programiranje:Predmet {id:'3', naziv:'Programiranje', semestar:2})
 
 //Sesije
-CREATE (S1:Sesija {id:'1', tema:'Integrali'})
-CREATE (S2:Sesija {id:'2', tema:'Kinematika'})
-CREATE (S3:Sesija {id:'3', tema:'C# Osnove'})
-CREATE (S4:Sesija {id:'4', tema:'Algoritmi'})
+CREATE (:Sesija {id:'1', opis:'Uvod u rad sa Neo4j bazom', status:'Održana', ocena:5})
+CREATE (:Sesija {id:'2', opis:'Pomoć oko projektnog zadatka iz Web programiranja', status:'Zakazana'})
+CREATE (:Sesija {id:'3', opis:'Konsultacije za kolokvijum iz Baza podataka', status:'Održana', ocena:4})
+CREATE (:Sesija {id:'4', opis:'Pregled seminarskog rada', status:'Otkazana'})
 
 //Termini
-CREATE (T1:Termin {id:'1', datum:'2026-01-15', vreme:'10:00'})
-CREATE (T2:Termin {id:'2', datum:'2026-01-16', vreme:'14:00'})
-CREATE (T3:Termin {id:'3', datum:'2026-01-17', vreme:'09:00'})
-CREATE (T4:Termin {id:'4', datum:'2026-01-18', vreme:'13:00'})
+CREATE (:Termin {id:'1', datum: date('2026-01-15'), vremeOd: datetime("2026-01-15T10:23:32.122+0100"), vremeDo: datetime("2026-01-15T12:23:32.122+0100")})
+CREATE (:Termin {id:'2', datum: date('2026-01-16'), vremeOd: datetime("2026-01-16T10:23:32.122+0100"), vremeDo: datetime("2026-01-16T12:23:32.122+0100")})
+CREATE (:Termin {id:'3', datum: date('2026-01-17'), vremeOd: datetime("2026-01-17T10:23:32.122+0100"), vremeDo: datetime("2026-01-17T12:23:32.122+0100")})
+CREATE (:Termin {id:'4', datum: date('2026-01-18'), vremeOd: datetime("2026-01-18T10:23:32.122+0100"), vremeDo: datetime("2026-01-18T12:23:32.122+0100")})
 
 
 //Relacije

@@ -5,9 +5,9 @@ namespace StudentMentorAPI.Models
 {
     public class Sesija
     {
-        public string? Id { get; set; }
-        public string? Opis { get; set; }
-        public string? Status { get; set; }
-        public int? Ocena { get; set; }
+        public string? id { get; set; }
+        public string? opis { get; set; }
+        public string? status { get; set; }
+        public int? ocena { get; set; }
     }
 }
