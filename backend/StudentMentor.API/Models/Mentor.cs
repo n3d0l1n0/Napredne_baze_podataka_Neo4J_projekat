@@ -1,15 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace StudentMentorAPI
+namespace StudentMentorAPI.Models
 {
     public class Mentor
     {
-        public string? Id { get; set; }
-        public string? Ime { get; set; }
-        public string? Prezime { get; set; }
-        public string? Email { get; set; }
-        public int? Rejting { get; set; }
-        public MentorTip Tip { get; set; }
+        
+        public string? id { get; set; }
+
+        public string? ime { get; set; }
+
+        public string? prezime { get; set; }
+
+        public string? email { get; set; }
+
+        public int? rejting { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public MentorTip tip { get; set; }
     }
 }

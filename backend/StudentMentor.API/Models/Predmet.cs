@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace StudentMentorAPI
+namespace StudentMentorAPI.Models
 {
     public class Predmet
     {
