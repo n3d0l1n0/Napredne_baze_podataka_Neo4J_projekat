@@ -1,14 +1,14 @@
 //Studenti
-CREATE (Alice:Student {id:'1', ime:'Alice', prezime:'Petrović', email:'alice@example.com', godinaStudija:2})
-CREATE (Bob:Student {id:'2', ime:'Bob', prezime:'Jovanović', email:'bob@example.com', godinaStudija:3})
-CREATE (Teodora:Student {id:'3', ime:'Teodora', prezime:'Stojanović', email:'teodora@example.com', godinaStudija:1})
-CREATE (Marko:Student {id:'4', ime:'Marko', prezime:'Nikolić', email:'marko@example.com', godinaStudija:2})
-CREATE (Jelena:Student {id:'5', ime:'Jelena', prezime:'Matić', email:'jelena@example.com', godinaStudija:3})
+CREATE (Alice:Student {id:'1', ime:'Alice', prezime:'Petrović', email:'alice@example.com', smer:'Informacioni sistemi', godinaStudija:2})
+CREATE (Bob:Student {id:'2', ime:'Bob', prezime:'Jovanović', email:'bob@example.com', smer:'Softversko inženjerstvo', godinaStudija:3})
+CREATE (Teodora:Student {id:'3', ime:'Teodora', prezime:'Stojanović', email:'teodora@example.com', smer:'Menadžment', godinaStudija:1})
+CREATE (Marko:Student {id:'4', ime:'Marko', prezime:'Nikolić', email:'marko@example.com', smer:'Informacioni sistemi', godinaStudija:2})
+CREATE (Jelena:Student {id:'5', ime:'Jelena', prezime:'Matić', email:'jelena@example.com', smer:'Softversko inženjerstvo', godinaStudija:3})
 
 //Mentori
-CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5})
-CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4})
-CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3})
+CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5, tip:'Profesor'})
+CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4, tip:'Profesor'})
+CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3, tip:'Student'});
 
 //Predmeti
 CREATE (Matematika:Predmet {id:'1', naziv:'Matematika', semestar:1})
