@@ -1,17 +1,19 @@
 import { getStudents, addStudent, updateStudent, deleteStudent } from "../API/students.js";
 import { clearApp, showMessage } from "../HELPERS/helper.js";
 
-const app = document.getElementById("app");
 let studentZaIzmenu = null;
 
 function createTitle() {
     const h1 = document.createElement("h1");
-    h1.textContent = "Student Mentor App";
+    h1.textContent = "Trenutni studenti";
+    h1.style.color = "#0d47a1";
+    h1.style.marginBottom = "1rem";
     return h1;
 }
 
-function createForm() {
+function createForm(container) {
     const form = document.createElement("form");
+    form.className = "student-form";
 
     const ime = document.createElement("input");
     ime.placeholder = "Ime";
@@ -35,7 +37,7 @@ function createForm() {
     godina.required = true;
 
     const btn = document.createElement("button");
-    btn.textContent = "Dodaj";
+    btn.textContent = "Dodaj studenta";
 
     form.append(ime, prezime, email, smer, godina, btn);
 
@@ -53,19 +55,19 @@ function createForm() {
         try {
             if (studentZaIzmenu) {
                 await updateStudent(studentZaIzmenu.id, { ...student, id: studentZaIzmenu.id });
-                showMessage("Student izmenjen", "success");
+                showMessage(container, "Student izmenjen", "success");
                 studentZaIzmenu = null;
-                btn.textContent = "Dodaj";
+                btn.textContent = "Dodaj studenta";
             } else {
                 await addStudent({ ...student, id: crypto.randomUUID() });
-                showMessage("Student dodat", "success");
+                showMessage(container, "Student dodat", "success");
             }
 
             form.reset();
-            loadStudents();
+            loadStudents(container);
 
         } catch (err) {
-            showMessage(err.message, "error");
+            showMessage(container, err.message, "error");
         }
     });
 
@@ -83,31 +85,44 @@ function createForm() {
     return form;
 }
 
-function createList(students) {
+function createList(students, container) {
+    const wrapper = document.createElement("div");
+
+    const listaTitle = document.createElement("h2");
+    listaTitle.textContent = "Lista studenata";
+    listaTitle.style.color = "#0d47a1";
+    listaTitle.style.marginBottom = "0.8rem";
+    wrapper.appendChild(listaTitle);
+
     const ul = document.createElement("ul");
+    ul.className = "student-list";
 
     students.forEach(s => {
         const li = document.createElement("li");
+        li.className = "student-item";
 
         const text = document.createElement("span");
         text.textContent = `${s.ime} ${s.prezime} (${s.email})`;
+        text.style.marginRight = "1rem";
 
         const edit = document.createElement("button");
-        edit.textContent = "✏️";
+        edit.textContent = "Izmeni studenta";
+        edit.className = "btn edit-btn";
         edit.addEventListener("click", () => {
-            const form = app.querySelector("form");
+            const form = container.querySelector("form");
             form.fillForEdit(s);
         });
 
         const del = document.createElement("button");
-        del.textContent = "❌";
+        del.textContent = "Obrisi studenta";
+        del.className = "btn delete-btn";
         del.addEventListener("click", async () => {
             try {
                 await deleteStudent(s.id);
-                showMessage("Student obrisan", "success");
-                loadStudents();
+                showMessage(container, "Student obrisan", "success");
+                loadStudents(container);
             } catch (err) {
-                showMessage(err.message, "error");
+                showMessage(container, err.message, "error");
             }
         });
 
@@ -115,20 +130,20 @@ function createList(students) {
         ul.appendChild(li);
     });
 
-    return ul;
+    wrapper.appendChild(ul);
+    return wrapper;
 }
 
-async function loadStudents() {
-    clearApp(app);
-    app.appendChild(createTitle());
+export async function loadStudents(container) {
+    clearApp(container);
+
+    container.appendChild(createTitle());
 
     try {
         const students = await getStudents();
-        app.appendChild(createForm());
-        app.appendChild(createList(students));
+        container.appendChild(createForm(container));
+        container.appendChild(createList(students, container));
     } catch (err) {
-        showMessage(err.message, "error");
+        showMessage(container, err.message, "error");
     }
 }
-
-loadStudents();
