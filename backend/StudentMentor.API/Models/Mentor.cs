@@ -6,7 +6,7 @@ namespace StudentMentorAPI.Models
 {
     public class Mentor
     {
-        
+
         public string? id { get; set; }
 
         public string? ime { get; set; }
@@ -19,5 +19,6 @@ namespace StudentMentorAPI.Models
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public MentorTip tip { get; set; }
+        public bool admin { get; set; }
     }
 }

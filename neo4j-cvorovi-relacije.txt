@@ -6,9 +6,13 @@ CREATE (Marko:Student {id:'4', ime:'Marko', prezime:'Nikolić', email:'marko@exa
 CREATE (Jelena:Student {id:'5', ime:'Jelena', prezime:'Matić', email:'jelena@example.com', smer:'Softversko inženjerstvo', godinaStudija:3})
 
 //Mentori
-CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5, tip:'Profesor'})
-CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4, tip:'Profesor'})
-CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3, tip:'Student'});
+CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5, tip:'Profesor', admin: true})
+CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4, tip:'Profesor', admin: false})
+CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3, tip:'Profesor', admin: false});
+
+CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5, tip:'Profesor', admin: true, password: 'Admin123!'})
+CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4, tip:'Profesor', admin: false, password: 'Nikola456!'})
+CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3, tip:'Profesor', admin: false, password: 'Petar789!'});
 
 //Predmeti
 CREATE (Matematika:Predmet {id:'1', naziv:'Matematika', semestar:1})

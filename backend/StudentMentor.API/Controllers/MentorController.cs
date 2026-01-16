@@ -26,6 +26,19 @@ namespace StudentMentorAPI.Controllers
                 .ResultsAsync;
             return Ok(mentors);
         }
+        
+        [HttpGet("all")]
+        public async Task<ActionResult<List<Mentor>>> GetAllMentorsAdmin()
+        {
+            var client = await _service.GetClientAsync();
+
+            var mentors = await client.Cypher
+                .Match("(m:Mentor)")
+                .Return(m => m.As<Mentor>())
+                .ResultsAsync;
+
+            return Ok(mentors.ToList());
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Mentor>> GetById(string id)
@@ -33,7 +46,7 @@ namespace StudentMentorAPI.Controllers
             var client = await _service.GetClientAsync();
 
             var result = await client.Cypher
-                .Match("(m:Mentor)") 
+                .Match("(m:Mentor)")
                 .Where((Mentor m) => m.id == id)
                 .Return(m => m.As<Mentor>())
                 .ResultsAsync;
@@ -105,5 +118,53 @@ namespace StudentMentorAPI.Controllers
                 .ExecuteWithoutResultsAsync();
             return NoContent();
         }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<Mentor>> Login([FromBody] Mentor login)
+        {
+            var client = await _service.GetClientAsync();
+
+            var result = await client.Cypher
+                .Match("(m:Mentor)")
+                .Where((Mentor m) => m.email == login.email)
+                .Return(m => m.As<Mentor>())
+                .ResultsAsync;
+
+            var mentor = result.FirstOrDefault();
+
+            if (mentor == null)
+                return Unauthorized("Mentor ne postoji");
+
+            return Ok(mentor);
+        }
+
+        [HttpGet("my-students/{mentorId}")]
+        public async Task<ActionResult<List<Student>>> GetMyStudents(string mentorId)
+        {
+            var client = await _service.GetClientAsync();
+
+            var students = await client.Cypher
+                .Match("(m:Mentor)-[:POKRIVA_PREDMET]->(pred:Predmet)<-[:SLUSA]-(s:Student)")
+                .Where((Mentor m) => m.id == mentorId)
+                .Return(s => s.As<Student>())
+                .ResultsAsync;
+
+            return Ok(students.ToList());
+        }
+
+        [HttpGet("my-predmeti/{mentorId}")]
+        public async Task<ActionResult<List<Predmet>>> GetMyPredmeti(string mentorId)
+        {
+            var client = await _service.GetClientAsync();
+
+            var predmeti = await client.Cypher
+                .Match("(m:Mentor)-[:POKRIVA_PREDMET]->(pred:Predmet)")
+                .Where((Mentor m) => m.id == mentorId)
+                .Return(pred => pred.As<Predmet>())
+                .ResultsAsync;
+
+            return Ok(predmeti.ToList());
+        }
+
     }
 }

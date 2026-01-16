@@ -1,4 +1,5 @@
 import { getStudents, addStudent, updateStudent, deleteStudent } from "../API/students.js";
+import { getMyStudents } from "../API/mentors.js";
 import { clearApp, showMessage } from "../HELPERS/helper.js";
 
 let studentZaIzmenu = null;
@@ -134,13 +135,13 @@ function createList(students, container) {
     return wrapper;
 }
 
-export async function loadStudents(container) {
+export async function loadStudents(container, mentorId) {
     clearApp(container);
 
     container.appendChild(createTitle());
 
     try {
-        const students = await getStudents();
+        const students = await getMyStudents(mentorId);
         container.appendChild(createForm(container));
         container.appendChild(createList(students, container));
     } catch (err) {
