@@ -144,7 +144,7 @@ namespace StudentMentorAPI.Controllers
             if (string.IsNullOrEmpty(mentor.lozinka))
                 return Unauthorized("Mentor nema postavljenu lozinku u bazi (polje lozinka je null).");
             bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginData.lozinka, mentor.lozinka);
-            
+
             if (!isPasswordValid)
                         return Unauthorized("Lozinka nije ispravna.");
 
