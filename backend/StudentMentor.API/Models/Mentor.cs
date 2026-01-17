@@ -5,23 +5,30 @@ using System.Text.Json.Serialization;
 namespace StudentMentorAPI.Models
 {
     public class Mentor
-    {
+{
+    [JsonPropertyName("id")]
+    public string? id { get; set; }
 
-        public string? id { get; set; }
+    [JsonPropertyName("ime")]
+    public string? ime { get; set; }
 
-        public string? ime { get; set; }
+    [JsonPropertyName("prezime")]
+    public string? prezime { get; set; }
 
-        public string? prezime { get; set; }
+    [JsonPropertyName("email")]
+    public string? email { get; set; }
 
-        public string? email { get; set; }
+    [JsonPropertyName("rejting")]
+    public int? rejting { get; set; }
 
-        public int? rejting { get; set; }
+    [JsonPropertyName("lozinka")]
+    public string? lozinka { get; set; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public MentorTip tip { get; set; }
-        public bool admin { get; set; }
-        
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? lozinka { get; set; }
-    }
+    [JsonPropertyName("admin")]
+    public bool admin { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonPropertyName("tip")]
+    public MentorTip tip { get; set; }
+}
 }

@@ -78,50 +78,63 @@ function createForm() {
     return form;
 }
 
-function createList(mentors) {
-    const container = document.createElement("div");
+function createList(mentors, container) {
+    const wrapper = document.createElement("div");
 
     const listaTitle = document.createElement("h2");
     listaTitle.textContent = "Lista mentora";
-    listaTitle.style.marginBottom = "0.8rem";
+    listaTitle.style.marginBottom = "1.5rem";
     listaTitle.style.color = "#0d47a1";
-    container.appendChild(listaTitle);
+    wrapper.appendChild(listaTitle);
 
-    const ul = document.createElement("ul");
+    const grid = document.createElement("div");
+    grid.className = "cards-grid";
 
     mentors.forEach(m => {
-        const li = document.createElement("li");
+        const card = document.createElement("div");
+        card.className = "card";
 
-        const text = document.createElement("span");
-        text.textContent = `${m.ime} ${m.prezime} (${m.email}) ${m.admin ? "[Admin]" : ""}`;
+        const name = document.createElement("h4");
+        name.textContent = `${m.ime} ${m.prezime}`;
+
+        const info = document.createElement("p");
+        info.textContent = `${m.email} ${m.admin ? "[ADMINISTRATOR]" : "[MENTOR]"}`;
+
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
 
         const edit = document.createElement("button");
-        edit.textContent = "Izmeni mentora";
+        edit.textContent = "Izmeni";
+        edit.className = "btn-icon edit-btn";
         edit.addEventListener("click", () => {
             const form = container.querySelector("form");
             form.fillForEdit(m);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         const del = document.createElement("button");
-        del.textContent = "Obrisi mentora";
+        del.textContent = "Obriši";
+        del.className = "btn-icon delete-btn";
         del.addEventListener("click", async () => {
-            try {
-                await deleteMentor(m.id);
-                showMessage(container, "Mentor obrisan", "success");
-                loadMentors(container);
-            } catch (err) {
-                showMessage(container, err.message, "error");
+            if(confirm("Obriši mentora?")) {
+                try {
+                    await deleteMentor(m.id);
+                    showMessage(container, "Mentor obrisan", "success");
+                    loadMentors(container);
+                } catch (err) {
+                    showMessage(container, err.message, "error");
+                }
             }
         });
 
-        li.append(text, edit, del);
-        ul.appendChild(li);
+        actions.append(edit, del);
+        card.append(name, info, actions);
+        grid.appendChild(card);
     });
 
-    container.appendChild(ul);
-    return container;
+    wrapper.appendChild(grid);
+    return wrapper;
 }
-
 export async function loadMentors(container) {
     clearApp(container);
 

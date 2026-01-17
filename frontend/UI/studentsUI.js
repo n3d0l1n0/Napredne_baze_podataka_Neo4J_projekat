@@ -93,49 +93,57 @@ function createList(students, container, mentorId) {
     const listaTitle = document.createElement("h2");
     listaTitle.textContent = "Lista studenata";
     listaTitle.style.color = "#0d47a1";
-    listaTitle.style.marginBottom = "0.8rem";
+    listaTitle.style.marginBottom = "1.5rem";
     wrapper.appendChild(listaTitle);
 
-    const ul = document.createElement("ul");
-    ul.className = "student-list";
+    const grid = document.createElement("div");
+    grid.className = "cards-grid";
 
     students.forEach(s => {
-        const li = document.createElement("li");
-        li.className = "student-item";
+        const card = document.createElement("div");
+        card.className = "card";
 
-        const text = document.createElement("span");
-        text.textContent = `${s.ime} ${s.prezime} (${s.email})`;
-        text.style.marginRight = "1rem";
+        const name = document.createElement("h4");
+        name.textContent = `${s.ime} ${s.prezime}`;
+
+        const info = document.createElement("p");
+        info.textContent = `${s.email} | Smer: ${s.smer} (${s.godinaStudija}. godina)`;
+
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
 
         const edit = document.createElement("button");
-        edit.textContent = "Izmeni studenta";
-        edit.className = "btn edit-btn";
+        edit.textContent = "Izmeni";
+        edit.className = "btn-icon edit-btn";
         edit.addEventListener("click", () => {
             const form = container.querySelector("form");
             form.fillForEdit(s);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         const del = document.createElement("button");
-        del.textContent = "Obrisi studenta";
-        del.className = "btn delete-btn";
+        del.textContent = "Obriši";
+        del.className = "btn-icon delete-btn";
         del.addEventListener("click", async () => {
-            try {
-                await deleteStudent(s.id);
-                showMessage(container, "Student obrisan", "success");
-                loadStudents(container, mentorId);
-            } catch (err) {
-                showMessage(container, err.message, "error");
+            if(confirm("Obriši studenta?")) {
+                try {
+                    await deleteStudent(s.id);
+                    showMessage(container, "Student obrisan", "success");
+                    loadStudents(container, mentorId);
+                } catch (err) {
+                    showMessage(container, err.message, "error");
+                }
             }
         });
 
-        li.append(text, edit, del);
-        ul.appendChild(li);
+        actions.append(edit, del);
+        card.append(name, info, actions);
+        grid.appendChild(card);
     });
 
-    wrapper.appendChild(ul);
+    wrapper.appendChild(grid);
     return wrapper;
 }
-
 export async function loadStudents(container, mentorId) {
     clearApp(container);
 

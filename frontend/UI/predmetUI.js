@@ -74,49 +74,57 @@ function createList(predmeti, container, mentorId) {
     const listaTitle = document.createElement("h2");
     listaTitle.textContent = "Lista predmeta";
     listaTitle.style.color = "#0d47a1";
-    listaTitle.style.marginBottom = "0.8rem";
+    listaTitle.style.marginBottom = "1.5rem";
     wrapper.appendChild(listaTitle);
 
-    const ul = document.createElement("ul");
-    ul.className = "predmet-list";
+    const grid = document.createElement("div");
+    grid.className = "cards-grid";
 
     predmeti.forEach(s => {
-        const li = document.createElement("li");
-        li.className = "predmet-item";
+        const card = document.createElement("div");
+        card.className = "card";
 
-        const text = document.createElement("span");
-        text.textContent = `${s.naziv}, Semestar: ${s.semestar}`;
-        text.style.marginRight = "1rem";
+        const title = document.createElement("h4");
+        title.textContent = s.naziv;
+
+        const info = document.createElement("p");
+        info.textContent = `Semestar: ${s.semestar}`;
+
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
 
         const edit = document.createElement("button");
-        edit.textContent = "Izmeni predmet";
-        edit.className = "btn edit-btn";
+        edit.textContent = "Izmeni";
+        edit.className = "btn-icon edit-btn";
         edit.addEventListener("click", () => {
             const form = container.querySelector("form");
             form.fillForEdit(s);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         const del = document.createElement("button");
-        del.textContent = "Obrisi predmet";
-        del.className = "btn delete-btn";
+        del.textContent = "Obriši";
+        del.className = "btn-icon delete-btn";
         del.addEventListener("click", async () => {
-            try {
-                await deletePredmet(s.id);
-                showMessage(container, "Predmet obrisan", "success");
-                loadPredmeti(container, mentorId);
-            } catch (err) {
-                showMessage(container, err.message, "error");
+            if(confirm("Obriši predmet?")) {
+                try {
+                    await deletePredmet(s.id);
+                    showMessage(container, "Predmet obrisan", "success");
+                    loadPredmeti(container, mentorId);
+                } catch (err) {
+                    showMessage(container, err.message, "error");
+                }
             }
         });
 
-        li.append(text, edit, del);
-        ul.appendChild(li);
+        actions.append(edit, del);
+        card.append(title, info, actions);
+        grid.appendChild(card);
     });
 
-    wrapper.appendChild(ul);
+    wrapper.appendChild(grid);
     return wrapper;
 }
-
 export async function loadPredmeti(container, mentorId) {
     clearApp(container);
 

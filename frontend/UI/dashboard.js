@@ -10,6 +10,7 @@ const dashboard = document.getElementById("dashboard");
 function showLogin() {
     clearApp(dashboard);
 
+    dashboard.className = "login-wrapper";
     const card = document.createElement("div");
     card.className = "login-card";
 
@@ -58,27 +59,44 @@ function createSidebar() {
     const sidebar = document.createElement("div");
     sidebar.className = "sidebar";
 
-    const homeBtn = document.createElement("button");
-    homeBtn.textContent = "Home";
-    homeBtn.addEventListener("click", () => loadSection("home"));
+    const logo = document.createElement("h3");
+    logo.textContent = "STUDENT MENTOR";
+    sidebar.appendChild(logo);
 
-    const studentsBtn = document.createElement("button");
-    studentsBtn.textContent = "Studenti";
-    studentsBtn.addEventListener("click", () => loadSection("students"));
+    const menuItems = [
+        { name: "Početna", section: "home" },
+        { name: "Studenti", section: "students" },
+        { name: "Mentori", section: "mentors", adminOnly: true },
+        { name: "Predmeti", section: "predmeti" }
+    ];
 
-    const mentorsBtn = document.createElement("button");
-    mentorsBtn.textContent = "Mentori";
-    mentorsBtn.addEventListener("click", () => loadSection("mentors"));
+    menuItems.forEach(item => {
+        if (item.adminOnly && !getCurrentMentor().admin) return;
 
-    const predmetBtn = document.createElement("button");
-    predmetBtn.textContent = "Predmeti";
-    predmetBtn.addEventListener("click", () => loadSection("predmeti"));
+        const btn = document.createElement("button");
+        btn.textContent = item.name.toUpperCase();
+        btn.className = "sidebar-btn";
+        
+        btn.addEventListener("click", () => {
+            const allBtns = sidebar.querySelectorAll(".sidebar-btn");
+            allBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            
+            loadSection(item.section);
+        });
+        
+        sidebar.appendChild(btn);
+    });
 
-    if (!getCurrentMentor().admin) {
-        mentorsBtn.style.display = "none";
-    }
-
-    sidebar.append(homeBtn, studentsBtn, mentorsBtn, predmetBtn);
+    const logoutBtn = document.createElement("button");
+    logoutBtn.textContent = "ODJAVI SE";
+    logoutBtn.className = "sidebar-btn logout";
+    logoutBtn.style.marginTop = "auto";
+    logoutBtn.addEventListener("click", () => {
+        setCurrentMentor(null);
+        showLogin();
+    });
+    sidebar.appendChild(logoutBtn);
 
     return sidebar;
 }
@@ -114,13 +132,35 @@ function loadSection(section) {
 }
 
 function showHome() {
+    clearApp(mainContainer);
+
+    const mentor = getCurrentMentor();
+
+    const homeDiv = document.createElement("div");
+    homeDiv.className = "home-container";
+
     const title = document.createElement("h1");
-    title.textContent = `Dobrodošli, ${getCurrentMentor().ime}!`;
+    title.textContent = `Dobrodošli nazad, ${mentor.ime}!`;
+    
+    const subtitle = document.createElement("p");
+    subtitle.style.color = "#666";
+    subtitle.innerHTML = `Vaš nivo privilegija: <strong style="color: #0d47a1">${mentor.admin ? "Administrator" : "Mentor"}</strong>`;
 
-    const text = document.createElement("p");
-    text.textContent = "Ovo je vaš dashboard gde možete da upravljate studentima i mentorima.";
+    const hr = document.createElement("hr");
+    hr.style.margin = "20px 0";
+    hr.style.border = "0";
+    hr.style.borderTop = "1px solid #eee";
 
-    mainContainer.append(title, text);
+    const infoCard = document.createElement("div");
+    infoCard.className = "card";
+    infoCard.style.borderLeft = "5px solid #4caf50";
+
+    const infoText = document.createElement("p");
+    infoText.textContent = "Sistem je spreman. Koristite meni sa leve strane da upravljate svojim studentima, pregledate predmete ili editujete listu mentora.";
+    
+    infoCard.appendChild(infoText);
+    homeDiv.append(title, subtitle, hr, infoCard);
+    mainContainer.appendChild(homeDiv);
 }
 
 function initDashboardUI() {

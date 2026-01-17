@@ -131,17 +131,22 @@ namespace StudentMentorAPI.Controllers
 
             var result = await client.Cypher
                 .Match("(m:Mentor)")
-                .Where((Mentor m) => m.email == loginData.email)
+                .Where("m.email = $email")
+                .WithParam("email", loginData.email)
                 .Return(m => m.As<Mentor>())
                 .ResultsAsync;
 
             var mentor = result.FirstOrDefault();
 
-            if (mentor == null || string.IsNullOrEmpty(mentor.lozinka) || 
-                !BCrypt.Net.BCrypt.Verify(loginData.lozinka, mentor.lozinka))
-            {
-                return Unauthorized("Neispravan email ili lozinka");
-            }
+            if (mentor == null) 
+                return Unauthorized("Korisnik sa tim emailom nije pronađen u bazi.");
+
+            if (string.IsNullOrEmpty(mentor.lozinka))
+                return Unauthorized("Mentor nema postavljenu lozinku u bazi (polje lozinka je null).");
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginData.lozinka, mentor.lozinka);
+            
+            if (!isPasswordValid)
+                        return Unauthorized("Lozinka nije ispravna.");
 
             mentor.lozinka = null; 
             return Ok(mentor);
