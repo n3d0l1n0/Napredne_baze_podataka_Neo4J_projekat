@@ -6,13 +6,12 @@ CREATE (Marko:Student {id:'4', ime:'Marko', prezime:'Nikolić', email:'marko@exa
 CREATE (Jelena:Student {id:'5', ime:'Jelena', prezime:'Matić', email:'jelena@example.com', smer:'Softversko inženjerstvo', godinaStudija:3})
 
 //Mentori
-CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5, tip:'Profesor', admin: true})
-CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4, tip:'Profesor', admin: false})
-CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3, tip:'Profesor', admin: false});
-
-CREATE (Maja:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5, tip:'Profesor', admin: true, password: 'Admin123!'})
-CREATE (Nikola:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4, tip:'Profesor', admin: false, password: 'Nikola456!'})
-CREATE (Petar:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3, tip:'Profesor', admin: false, password: 'Petar789!'});
+//Admin123!
+CREATE (:Mentor {id:'1', ime:'Maja', prezime:'Marković', email:'maja@example.com', rejting:5, tip:'Profesor', admin: true, lozinka: '$2a$11$mC5b4h9I6U3Z7eU8W/D6uO8Y9vXU2QjX1L3BvXf9z8y9H3.G5w9W.'})
+//Nikola456!
+CREATE (:Mentor {id:'2', ime:'Nikola', prezime:'Kovačević', email:'nikola@example.com', rejting:4, tip:'Profesor', admin: false, lozinka: '$2a$11$W0E1l6e1Q6A1Z7S8D9F0GeG1H2J3K4L5M6N7O8P9Q0R1S2T3U4V5W'})
+//Petar789!
+CREATE (:Mentor {id:'3', ime:'Petar', prezime:'Stanić', email:'petar@example.com', rejting:3, tip:'Profesor', admin: false, lozinka: '$2a$11$X0Y1Z2A3B4C5D6E7F8G9HeH0I1J2K3L4M5N6O7P8Q9R0S1T2U3V4W'});
 
 //Predmeti
 CREATE (Matematika:Predmet {id:'1', naziv:'Matematika', semestar:1})

@@ -1,13 +1,18 @@
 import { BASE_URL } from "../HELPERS/config.js";
 
-export async function loginMentor(email) {
-    const res = await fetch(`${BASE_URL}/Mentor/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+export async function loginMentor(email, lozinka) {
+    const response = await fetch(`${BASE_URL}/Mentor/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, lozinka })
     });
-    if (!res.ok) throw new Error("Neuspešan login");
-    return await res.json();
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Greška pri logovanju");
+    }
+
+    return await response.json();
 }
 
 export async function getMyStudents(mentorId) {

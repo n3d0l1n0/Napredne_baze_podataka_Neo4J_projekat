@@ -20,5 +20,8 @@ namespace StudentMentorAPI.Models
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public MentorTip tip { get; set; }
         public bool admin { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? lozinka { get; set; }
     }
 }

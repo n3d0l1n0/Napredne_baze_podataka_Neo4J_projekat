@@ -67,22 +67,25 @@ namespace StudentMentorAPI.Controllers
         {
             var client = await _service.GetClientAsync();
 
+            mentor.lozinka = BCrypt.Net.BCrypt.HashPassword(mentor.lozinka);
+
             await client.Cypher
-                .Create("(m:Mentor {id:$id, ime:$ime, prezime:$prezime, email:$email, rejting:$rejting, tip:$tip})")
-                .WithParams(new
-                {
+                .Create("(m:Mentor {id:$id, ime:$ime, prezime:$prezime, email:$email, lozinka:$lozinka, rejting:$rejting, tip:$tip, admin:$admin})")
+                .WithParams(new {
                     id = mentor.id,
                     ime = mentor.ime,
                     prezime = mentor.prezime,
                     email = mentor.email,
+                    lozinka = mentor.lozinka,
                     rejting = mentor.rejting,
-                    tip = mentor.tip.ToString()
+                    tip = mentor.tip.ToString(),
+                    admin = mentor.admin
                 })
                 .ExecuteWithoutResultsAsync();
 
+            mentor.lozinka = null;
             return Ok(mentor);
         }
-
 
         [HttpPut("{id}")]
         public async Task<ActionResult<Mentor>> Update([FromBody] Mentor mentor, string id)
@@ -122,21 +125,25 @@ namespace StudentMentorAPI.Controllers
 
         //Mentor-Autentifikacija
         [HttpPost("login")]
-        public async Task<ActionResult<Mentor>> Login([FromBody] Mentor login)
+        public async Task<ActionResult<Mentor>> Login([FromBody] Mentor loginData)
         {
             var client = await _service.GetClientAsync();
 
             var result = await client.Cypher
                 .Match("(m:Mentor)")
-                .Where((Mentor m) => m.email == login.email)
+                .Where((Mentor m) => m.email == loginData.email)
                 .Return(m => m.As<Mentor>())
                 .ResultsAsync;
 
             var mentor = result.FirstOrDefault();
 
-            if (mentor == null)
-                return Unauthorized("Mentor ne postoji");
+            if (mentor == null || string.IsNullOrEmpty(mentor.lozinka) || 
+                !BCrypt.Net.BCrypt.Verify(loginData.lozinka, mentor.lozinka))
+            {
+                return Unauthorized("Neispravan email ili lozinka");
+            }
 
+            mentor.lozinka = null; 
             return Ok(mentor);
         }
 

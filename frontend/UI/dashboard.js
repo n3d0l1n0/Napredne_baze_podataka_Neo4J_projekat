@@ -10,27 +10,48 @@ const dashboard = document.getElementById("dashboard");
 function showLogin() {
     clearApp(dashboard);
 
-    const loginDiv = document.createElement("div");
-    loginDiv.className = "login";
+    const card = document.createElement("div");
+    card.className = "login-card";
+
+    const title = document.createElement("h2");
+    title.textContent = "Dobrodošli nazad!";
+
+    const subtitle = document.createElement("p");
+    subtitle.className = "subtitle";
+    subtitle.textContent = "Ulogujte se u Student-Mentor sistem";
 
     const emailInput = document.createElement("input");
-    emailInput.placeholder = "Email";
+    emailInput.placeholder = "Vaš email";
+    emailInput.type = "email";
+
+    const passInput = document.createElement("input");
+    passInput.placeholder = "Lozinka";
+    passInput.type = "password";
 
     const loginBtn = document.createElement("button");
-    loginBtn.textContent = "Login";
+    loginBtn.textContent = "Prijavi se";
+
+    const note = document.createElement("p");
+    note.className = "admin-note";
+    note.innerHTML = "Nemate nalog? <br><strong>Kontaktirajte administratora</strong> za dobijanje kredencijala.";
 
     loginBtn.addEventListener("click", async () => {
+        if (!emailInput.value || !passInput.value) {
+            showMessage(dashboard, "Molimo popunite sva polja", "error");
+            return;
+        }
+
         try {
-            const mentor = await loginMentor(emailInput.value);
+            const mentor = await loginMentor(emailInput.value, passInput.value);
             setCurrentMentor(mentor);
             initDashboardUI();
         } catch (err) {
-            showMessage(dashboard, err.message, "error");
+            showMessage(dashboard, "Neispravni podaci", "error");
         }
     });
 
-    loginDiv.append(emailInput, loginBtn);
-    dashboard.appendChild(loginDiv);
+    card.append(title, subtitle, emailInput, passInput, loginBtn, note);
+    dashboard.appendChild(card);
 }
 
 function createSidebar() {
