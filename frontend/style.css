@@ -292,3 +292,49 @@ form button:hover {
     font-size: 0.85rem;
     color: #90a4ae;
 }
+.calendar-layout {
+    display: flex;
+    gap: 2rem;
+    height: 500px;
+}
+
+.calendar-grid {
+    flex: 2;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    padding: 20px;
+}
+
+.day-box {
+    border: 1px solid #e3f2fd;
+    border-radius: 8px;
+    height: 80px;
+    padding: 5px;
+    font-size: 0.8rem;
+    transition: 0.3s;
+}
+
+.day-box.has-event {
+    background-color: #e3f2fd;
+    border-color: #0d47a1;
+    cursor: pointer;
+}
+
+.todo-sidebar {
+    flex: 1;
+    padding: 20px;
+    border-left: 4px solid #0d47a1;
+}
+
+.todo-item {
+    padding: 12px;
+    background: #f8fbff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 3px solid #0d47a1;
+}
+
+.todo-item strong {
+    color: #0d47a1;
+}

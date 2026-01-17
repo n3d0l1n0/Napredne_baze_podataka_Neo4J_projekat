@@ -33,7 +33,7 @@ namespace StudentMentorAPI.Controllers
             var client = await _service.GetClientAsync();
 
             var result = await client.Cypher
-                .Match("(s:Sesija)") 
+                .Match("(s:Sesija)")
                 .Where((Sesija s) => s.id == id)
                 .Return(s => s.As<Sesija>())
                 .ResultsAsync;
@@ -60,7 +60,7 @@ namespace StudentMentorAPI.Controllers
                     id = sesija.id,
                     opis = sesija.opis,
                     status = sesija.status,
-                    ocena = sesija.ocena  
+                    ocena = sesija.ocena
                 })
                 .ExecuteWithoutResultsAsync();
 
@@ -84,7 +84,7 @@ namespace StudentMentorAPI.Controllers
                     id = sesija.id,
                     opis = sesija.opis,
                     status = sesija.status,
-                    ocena = sesija.ocena 
+                    ocena = sesija.ocena
                 })
                 .Return(s => s.As<Sesija>())
                 .ResultsAsync;
@@ -104,5 +104,33 @@ namespace StudentMentorAPI.Controllers
                 .ExecuteWithoutResultsAsync();
             return NoContent();
         }
+        
+       [HttpGet("mentor/{mentorId}")]
+public async Task<ActionResult<List<SesijaDetaljiDTO>>> GetSessionsForMentor(string mentorId)
+{
+    var client = await _service.GetClientAsync();
+    
+    var result = await client.Cypher
+        .Match("(m:Mentor {id: $mentorId})-[:PREDAVAO_POMOC]->(s:Sesija)-[:ZAKAZANA_U]->(t:Termin)")
+        .Match("(s)<-[:POHAĐA]-(stud:Student)")
+        .OptionalMatch("(s)-[:ZA_PREDMET]->(p:Predmet)")
+        .WithParam("mentorId", mentorId)
+        .With("s, t, (stud.ime + ' ' + stud.prezime) AS punImeStudenta, " +
+              "coalesce(p.naziv, 'Opšte konsultacije') AS nazivPredmeta") 
+        .Return((s, t, punImeStudenta, nazivPredmeta) => new SesijaDetaljiDTO
+        {
+            SesijaId = s.As<Sesija>().id,
+            Opis = s.As<Sesija>().opis,
+            Status = s.As<Sesija>().status,
+            StudentIme = punImeStudenta.As<string>(),
+            PredmetNaziv = nazivPredmeta.As<string>(),
+            Datum = t.As<Termin>().datum,
+            VremeOd = t.As<Termin>().vremeOd,
+            VremeDo = t.As<Termin>().vremeDo
+        })
+        .ResultsAsync;
+
+    return Ok(result);
+}
     }
 }

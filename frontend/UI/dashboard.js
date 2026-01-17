@@ -4,6 +4,7 @@ import { setCurrentMentor, getCurrentMentor } from "../HELPERS/helper.js";
 import { loadPredmeti } from "../UI/predmetUI.js";
 import { loadMentors } from "../UI/mentorsUI.js";
 import { clearApp, showMessage } from "../HELPERS/helper.js";
+import { loadCalendar } from "./calendarUI.js";
 
 const dashboard = document.getElementById("dashboard");
 
@@ -65,6 +66,7 @@ function createSidebar() {
 
     const menuItems = [
         { name: "Početna", section: "home" },
+        { name: "Sesije", section: "calendar" },
         { name: "Studenti", section: "students" },
         { name: "Mentori", section: "mentors", adminOnly: true },
         { name: "Predmeti", section: "predmeti" }
@@ -115,6 +117,9 @@ function loadSection(section) {
     switch (section) {
         case "home":
             showHome();
+            break;
+        case "calendar":        
+            loadCalendar(mainContainer, getCurrentMentor().id);
             break;
         case "students":
             loadStudents(mainContainer, getCurrentMentor().id);
