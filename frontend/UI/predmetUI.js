@@ -1,6 +1,7 @@
 import { clearApp, showMessage } from "../HELPERS/helper.js";
 import {getPredmeti, deletePredmet, updatePredmet,  addPredmet } from "../API/predmet.js";
 import { getMyPredmeti } from "../API/mentors.js";
+import { addPredmetForMentor } from "../API/predmet.js";
 
 let predmetZaIzmenu = null;
 
@@ -12,7 +13,7 @@ function createTitle() {
     return h1;
 }
 
-function createForm(container) {
+function createForm(container, mentorId) {
     const form = document.createElement("form");
     form.className = "predmet-form";
 
@@ -32,45 +33,42 @@ function createForm(container) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const predmet = {
+        const predmetData = {
             naziv: naziv.value,
             semestar: parseInt(semestar.value)
         };
 
         try {
             if (predmetZaIzmenu) {
-                await updatePredmet(predmetZaIzmenu.id, { ...predmet, id: studentZaIzmenu.id });
+                await updatePredmet(predmetZaIzmenu.id, predmetData);
                 showMessage(container, "Predmet izmenjen", "success");
                 predmetZaIzmenu = null;
                 btn.textContent = "Dodaj predmet";
             } else {
-                await addPredmet({ ...predmet, id: crypto.randomUUID() });
+                await addPredmetForMentor(mentorId, predmetData);
                 showMessage(container, "Predmet dodat", "success");
             }
 
             form.reset();
-            loadPredmeti(container);
+            loadPredmeti(container, mentorId);
 
         } catch (err) {
             showMessage(container, err.message, "error");
         }
     });
 
-    form.fillForEdit = (student) => {
-        ime.value = student.ime;
-        prezime.value = student.prezime;
-        email.value = student.email;
-        smer.value = student.smer;
-        godina.value = student.godinaStudija;
+    form.fillForEdit = (predmet) => {
+        naziv.value = predmet.naziv;
+        semestar.value=predmet.semestar;
 
-        studentZaIzmenu = student;
+        predmetZaIzmenu = predmet;
         btn.textContent = "Sačuvaj izmene";
     };
 
     return form;
 }
 
-function createList(predmeti, container) {
+function createList(predmeti, container, mentorId) {
     const wrapper = document.createElement("div");
 
     const listaTitle = document.createElement("h2");
@@ -105,7 +103,7 @@ function createList(predmeti, container) {
             try {
                 await deletePredmet(s.id);
                 showMessage(container, "Predmet obrisan", "success");
-                loadPredmeti(container);
+                loadPredmeti(container, mentorId);
             } catch (err) {
                 showMessage(container, err.message, "error");
             }
@@ -126,8 +124,8 @@ export async function loadPredmeti(container, mentorId) {
 
     try {
         const predmeti = await getMyPredmeti(mentorId);
-        container.appendChild(createForm(container));
-        container.appendChild(createList(predmeti, container));
+        container.appendChild(createForm(container, mentorId));
+        container.appendChild(createList(predmeti, container, mentorId));
     } catch (err) {
         showMessage(container, err.message, "error");
     }

@@ -30,3 +30,13 @@ export async function deleteStudent(id) {
     });
     if (!res.ok) throw new Error("Greška pri brisanju studenta");
 }
+
+export async function addStudentForMentor(mentorId, student) {
+    const res = await fetch(`${BASE_URL}/Mentor/add-student/${mentorId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(student)
+    });
+    if (!res.ok) throw new Error("Greška pri dodavanju studenta za mentora");
+}
+

@@ -60,3 +60,15 @@ CREATE (S1)-[:ZAKAZANA_U]->(T1)
 CREATE (S2)-[:ZAKAZANA_U]->(T2)
 CREATE (S3)-[:ZAKAZANA_U]->(T3)
 CREATE (S4)-[:ZAKAZANA_U]->(T4)
+
+MATCH (m:Mentor {ime:'Maja'}), (s:Student)
+WHERE s.id IN ['1', '3']
+MERGE (m)-[:MENTOR_STUDENT]->(s);
+
+MATCH (m:Mentor {ime:'Nikola'}), (s:Student)
+WHERE s.id IN ['2']
+MERGE (m)-[:MENTOR_STUDENT]->(s);
+
+MATCH (m:Mentor {ime:'Petar'}), (s:Student)
+WHERE s.id IN ['4', '5']
+MERGE (m)-[:MENTOR_STUDENT]->(s);

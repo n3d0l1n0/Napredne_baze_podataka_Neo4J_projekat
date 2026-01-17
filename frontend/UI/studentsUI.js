@@ -1,6 +1,7 @@
-import { getStudents, addStudent, updateStudent, deleteStudent } from "../API/students.js";
+import { addStudent, updateStudent, deleteStudent } from "../API/students.js";
 import { getMyStudents } from "../API/mentors.js";
 import { clearApp, showMessage } from "../HELPERS/helper.js";
+import { addStudentForMentor } from "../API/students.js";
 
 let studentZaIzmenu = null;
 
@@ -12,7 +13,7 @@ function createTitle() {
     return h1;
 }
 
-function createForm(container) {
+function createForm(container, mentorId) {
     const form = document.createElement("form");
     form.className = "student-form";
 
@@ -45,28 +46,28 @@ function createForm(container) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const student = {
+        const studentData = {
             ime: ime.value,
             prezime: prezime.value,
             email: email.value,
             smer: smer.value,
             godinaStudija: parseInt(godina.value)
         };
-
+    
         try {
             if (studentZaIzmenu) {
-                await updateStudent(studentZaIzmenu.id, { ...student, id: studentZaIzmenu.id });
+                await updateStudent(studentZaIzmenu.id, studentData);
                 showMessage(container, "Student izmenjen", "success");
                 studentZaIzmenu = null;
                 btn.textContent = "Dodaj studenta";
-            } else {
-                await addStudent({ ...student, id: crypto.randomUUID() });
+            } else 
+            {
+                await addStudentForMentor(mentorId, studentData);
                 showMessage(container, "Student dodat", "success");
             }
-
+    
             form.reset();
-            loadStudents(container);
-
+            loadStudents(container, mentorId);
         } catch (err) {
             showMessage(container, err.message, "error");
         }
@@ -86,7 +87,7 @@ function createForm(container) {
     return form;
 }
 
-function createList(students, container) {
+function createList(students, container, mentorId) {
     const wrapper = document.createElement("div");
 
     const listaTitle = document.createElement("h2");
@@ -121,7 +122,7 @@ function createList(students, container) {
             try {
                 await deleteStudent(s.id);
                 showMessage(container, "Student obrisan", "success");
-                loadStudents(container);
+                loadStudents(container, mentorId);
             } catch (err) {
                 showMessage(container, err.message, "error");
             }
@@ -142,8 +143,8 @@ export async function loadStudents(container, mentorId) {
 
     try {
         const students = await getMyStudents(mentorId);
-        container.appendChild(createForm(container));
-        container.appendChild(createList(students, container));
+        container.appendChild(createForm(container, mentorId));
+        container.appendChild(createList(students, container, mentorId));
     } catch (err) {
         showMessage(container, err.message, "error");
     }

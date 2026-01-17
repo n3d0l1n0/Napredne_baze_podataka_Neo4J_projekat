@@ -30,3 +30,12 @@ export async function deletePredmet(id) {
     });
     if (!res.ok) throw new Error("Greška pri brisanju predmeta");
 }
+
+export async function addPredmetForMentor(mentorId, predmet) {
+    const res = await fetch(`${BASE_URL}/Mentor/add-predmet/${mentorId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(predmet)
+    });
+    if (!res.ok) throw new Error("Greška pri dodavanju predmeta za mentora");
+}

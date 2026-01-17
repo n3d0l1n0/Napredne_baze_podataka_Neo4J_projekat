@@ -16,6 +16,7 @@ namespace StudentMentorAPI.Controllers
             _service = service;
         }
 
+        //Mentor-CRUD
         [HttpGet]
         public async Task<ActionResult<List<Mentor>>> GetAll()
         {
@@ -26,7 +27,7 @@ namespace StudentMentorAPI.Controllers
                 .ResultsAsync;
             return Ok(mentors);
         }
-        
+
         [HttpGet("all")]
         public async Task<ActionResult<List<Mentor>>> GetAllMentorsAdmin()
         {
@@ -119,6 +120,7 @@ namespace StudentMentorAPI.Controllers
             return NoContent();
         }
 
+        //Mentor-Autentifikacija
         [HttpPost("login")]
         public async Task<ActionResult<Mentor>> Login([FromBody] Mentor login)
         {
@@ -138,13 +140,14 @@ namespace StudentMentorAPI.Controllers
             return Ok(mentor);
         }
 
+        //Mentor-Student
         [HttpGet("my-students/{mentorId}")]
         public async Task<ActionResult<List<Student>>> GetMyStudents(string mentorId)
         {
             var client = await _service.GetClientAsync();
 
             var students = await client.Cypher
-                .Match("(m:Mentor)-[:POKRIVA_PREDMET]->(pred:Predmet)<-[:SLUSA]-(s:Student)")
+                .Match("(m:Mentor)-[:MENTOR_STUDENT]->(s:Student)")
                 .Where((Mentor m) => m.id == mentorId)
                 .Return(s => s.As<Student>())
                 .ResultsAsync;
@@ -152,6 +155,44 @@ namespace StudentMentorAPI.Controllers
             return Ok(students.ToList());
         }
 
+        private async Task<string> GetNextStudentId()
+        {
+            var client = await _service.GetClientAsync();
+            var result = await client.Cypher
+                .Match("(s:Student)")
+                .Return(() => Neo4jClient.Cypher.Return.As<int>("max(toInteger(s.id))"))
+                .ResultsAsync;
+
+            int maxId = result.FirstOrDefault();
+            return (maxId + 1).ToString();
+        }
+
+        [HttpPost("add-student/{mentorId}")]
+        public async Task<ActionResult<Student>> AddStudentToMentor(string mentorId, [FromBody] Student student)
+        {
+            var client = await _service.GetClientAsync();
+
+            student.id = await GetNextStudentId();
+            await client.Cypher
+                .Match("(m:Mentor)")
+                .Where((Mentor m) => m.id == mentorId)
+                .Create("(s:Student {id: $id, ime: $ime, prezime: $prezime, email: $email, smer: $smer, godinaStudija: $godinaStudija})")
+                .Create("(m)-[:MENTOR_STUDENT]->(s)")
+                .WithParams(new
+                {
+                    id = student.id,
+                    ime = student.ime,
+                    prezime = student.prezime,
+                    email = student.email,
+                    smer = student.smer,
+                    godinaStudija = student.godinaStudija
+                })
+                .ExecuteWithoutResultsAsync();
+
+            return Ok(student);
+        }
+
+        //Mentor-Predmet
         [HttpGet("my-predmeti/{mentorId}")]
         public async Task<ActionResult<List<Predmet>>> GetMyPredmeti(string mentorId)
         {
@@ -164,6 +205,39 @@ namespace StudentMentorAPI.Controllers
                 .ResultsAsync;
 
             return Ok(predmeti.ToList());
+        }
+        private async Task<string> GetNextPredmetId()
+        {
+            var client = await _service.GetClientAsync();
+            var result = await client.Cypher
+                .Match("(p:Predmet)")
+                .Return(() => Neo4jClient.Cypher.Return.As<int>("max(toInteger(p.id))"))
+                .ResultsAsync;
+
+            int maxId = result.FirstOrDefault();
+            return (maxId + 1).ToString();
+        }
+
+        [HttpPost("add-predmet/{mentorId}")]
+        public async Task<ActionResult<Predmet>> AddPredmetToMentor(string mentorId, [FromBody] Predmet predmet)
+        {
+            var client = await _service.GetClientAsync();
+
+            predmet.id = await GetNextPredmetId();
+            await client.Cypher
+                .Match("(m:Mentor)")
+                .Where((Mentor m) => m.id == mentorId)
+                .Create("(p:Predmet {id: $id, naziv: $naziv, semestar: $semestar})")
+                .Create("(m)-[:POKRIVA_PREDMET]->(p)")
+                .WithParams(new
+                {
+                    id = predmet.id,
+                    naziv = predmet.naziv,
+                    semestar = predmet.semestar
+                })
+                .ExecuteWithoutResultsAsync();
+
+            return Ok(predmet);
         }
 
     }
