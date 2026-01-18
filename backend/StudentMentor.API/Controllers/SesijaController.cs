@@ -123,17 +123,34 @@ namespace StudentMentorAPI.Controllers
 
             return Ok();
         }
-
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateSession(string id, [FromBody] SesijaDetaljiDTO dto)
+        public async Task<ActionResult> UpdateSession(string id, [FromBody] KreirajSesiju dto)
         {
-            var client = await _service.GetClientAsync();
-            await client.Cypher
-                .Match("(s:Sesija {id: $id})")
-                .Set("s.opis = $opis, s.status = $status")
-                .WithParams(new { id = id, opis = dto.Opis, status = dto.Status })
-                .ExecuteWithoutResultsAsync();
-            return Ok();
+            try 
+            {
+                var client = await _service.GetClientAsync();
+
+                await client.Cypher
+                    .Match("(s:Sesija {id: $id})")
+                    .OptionalMatch("(s)-[:ZAKAZANA_U]->(t:Termin)")
+                    .Set("s.opis = $opis, s.status = $status")
+                    .Set("t.datum = $datum, t.vremeOd = datetime($vremeOd), t.vremeDo = datetime($vremeDo)")
+                    .WithParams(new {
+                        id = id,
+                        opis = dto.Opis ?? "",
+                        status = dto.Status ?? "Zakazana",
+                        datum = dto.VremeOd.ToString("yyyy-MM-dd"),
+                        vremeOd = dto.VremeOd.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        vremeDo = dto.VremeDo.ToString("yyyy-MM-ddTHH:mm:ss")
+                    })
+                    .ExecuteWithoutResultsAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Greška pri ažuriranju: " + ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]

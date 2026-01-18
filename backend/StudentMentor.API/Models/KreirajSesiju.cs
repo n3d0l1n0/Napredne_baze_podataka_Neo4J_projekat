@@ -6,4 +6,5 @@ public class KreirajSesiju
     public string Opis { get; set; }
     public DateTime VremeOd { get; set; }
     public DateTime VremeDo { get; set; }
+    public string Status{ get; set; }
 }

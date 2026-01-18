@@ -1,4 +1,4 @@
-import { clearApp } from "../HELPERS/helper.js";
+import { clearApp, prikaziLepConfirmModal } from "../HELPERS/helper.js";
 
 export async function loadCalendar(container, mentorId) {
     clearApp(container);
@@ -48,7 +48,7 @@ export async function loadCalendar(container, mentorId) {
         todoSection.appendChild(p);
     } else {
         danasnjeSesije.forEach(s => {
-            todoSection.appendChild(kreirajSesijuItem(s, () => loadCalendar(container, mentorId)));
+            todoSection.appendChild(kreirajSesijuItem(s, () => loadCalendar(container, mentorId), mentorId));
         });
     }
 
@@ -91,7 +91,7 @@ export async function loadCalendar(container, mentorId) {
                 detailsContent.textContent = "Nema zakazanih sesija za ovaj dan.";
             } else {
                 filtrirane.forEach(s => {
-                    detailsContent.appendChild(kreirajSesijuItem(s, () => loadCalendar(container, mentorId)));
+                    detailsContent.appendChild(kreirajSesijuItem(s, () => loadCalendar(container, mentorId), mentorId));
                 });
             }
         };
@@ -103,9 +103,10 @@ export async function loadCalendar(container, mentorId) {
     container.append(topWrapper, detailsSection);
 }
 
-function kreirajSesijuItem(s, onRefresh) {
+function kreirajSesijuItem(s, onRefresh, mentorId) {
     const item = document.createElement("div");
     item.className = "todo-item";
+    if (s.status === "Održana") item.style.borderLeftColor = "#2ecc71";
 
     const info = document.createElement("div");
     info.className = "todo-info";
@@ -114,30 +115,82 @@ function kreirajSesijuItem(s, onRefresh) {
     sName.textContent = s.studentIme;
     
     const pName = document.createElement("span");
-    pName.textContent = s.predmetNaziv;
-    
+    pName.textContent = s.predmetNaziv + (s.status === "Održana" ? " (ODRŽANA)" : "");
+
     const desc = document.createElement("small");
     const vreme = s.vremeOd.includes('T') ? s.vremeOd.split('T')[1].substring(0, 5) : "---";
     desc.textContent = `${vreme}h - ${s.opis}`;
     
     info.append(sName, pName, desc);
 
-    const delBtn = document.createElement("button");
-    delBtn.className = "btn-delete-text";
-    delBtn.textContent = "Obriši sesiju";
-    delBtn.onclick = async (e) => {
+    const actions = document.createElement("div");
+    actions.className = "todo-actions";
+
+    if (s.status !== "Održana") {
+        const doneBtn = document.createElement("button");
+        doneBtn.className = "btn-delete-text";
+        doneBtn.textContent = "Završi";
+        doneBtn.style.color = "#2ecc71";
+        doneBtn.style.borderColor = "#2ecc71";
+        doneBtn.onclick = async (e) => {
+            e.stopPropagation();
+            
+            const updateData = {
+                mentorId: mentorId.toString(),
+                studentId: "nebitno",
+                predmetId: "nebitno",
+                opis: s.opis || "",
+                status: "Održana",
+                vremeOd: s.vremeOd,
+                vremeDo: s.vremeDo
+            };
+        
+            try {
+                const response = await fetch(`http://localhost:5178/api/Sesija/${s.sesijaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+        
+                if (response.ok) {
+                    onRefresh();
+                } else {
+                    const errorText = await response.text();
+                    console.error("Greška pri završavanju:", errorText);
+                    alert("Nije uspjelo označavanje kao završeno.");
+                }
+            } catch (err) {
+                console.error("Mrežna greška:", err);
+            }
+        };
+        actions.appendChild(doneBtn);
+    }
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn-delete-text";
+    editBtn.textContent = "Izmeni";
+    editBtn.onclick = (e) => {
         e.stopPropagation();
-        if (confirm("Da li ste sigurni?")) {
-            await fetch(`http://localhost:5178/api/Sesija/${s.sesijaId}`, { method: 'DELETE' });
-            onRefresh();
-        }
+        showAddModal(mentorId, onRefresh, s); 
     };
 
-    item.append(info, delBtn);
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn-delete-text";
+    delBtn.textContent = "Obriši";
+    delBtn.onclick = async (e) => {
+        e.stopPropagation();
+        prikaziLepConfirmModal("Da li ste sigurni da želite da obrišete ovu sesiju?", async () => {
+            await fetch(`http://localhost:5178/api/Sesija/${s.sesijaId}`, { method: 'DELETE' });
+            onRefresh();
+        });
+    };
+
+    actions.append(editBtn, delBtn);
+    item.append(info, actions);
     return item;
 }
 
-function showAddModal(mentorId, onSaved) {
+function showAddModal(mentorId, onSaved, postojecaSesija = null) {
     const overlay = document.createElement("div");
     overlay.className = "modal-overlay";
 
@@ -145,43 +198,52 @@ function showAddModal(mentorId, onSaved) {
     content.className = "modal-content";
 
     const mTitle = document.createElement("h3");
-    mTitle.textContent = "Zakaži novu sesiju";
+    mTitle.textContent = postojecaSesija ? "Izmeni sesiju" : "Zakaži novu sesiju";
 
     const inputStud = document.createElement("input");
-    inputStud.placeholder = "ID Studenta (npr. 1)";
-    
+    inputStud.placeholder = "ID Studenta";
+    if(postojecaSesija) { inputStud.value = "Student: " + postojecaSesija.studentIme; inputStud.disabled = true; }
+
     const inputPred = document.createElement("input");
-    inputPred.placeholder = "ID Predmeta (npr. 1)";
+    inputPred.placeholder = "ID Predmeta";
+    if(postojecaSesija) { inputPred.value = "Predmet: " + postojecaSesija.predmetNaziv; inputPred.disabled = true; }
 
     const inputOpis = document.createElement("textarea");
-    inputOpis.placeholder = "Opis sesije...";
+    inputOpis.placeholder = "Opis...";
+    if(postojecaSesija) inputOpis.value = postojecaSesija.opis;
 
     const inputVreme = document.createElement("input");
     inputVreme.type = "datetime-local";
+    if(postojecaSesija) {
+        inputVreme.value = postojecaSesija.vremeOd.substring(0, 16);
+    }
 
     const actions = document.createElement("div");
     actions.className = "modal-actions";
 
     const saveBtn = document.createElement("button");
     saveBtn.className = "btn-primary";
-    saveBtn.textContent = "Sačuvaj";
+    saveBtn.textContent = postojecaSesija ? "Sačuvaj izmene" : "Zakaži";
+    
     saveBtn.onclick = async () => {
-        if(!inputStud.value || !inputPred.value || !inputVreme.value) {
-            alert("Popunite ID-jeve i vreme!");
-            return;
-        }
+        const url = postojecaSesija 
+            ? `http://localhost:5178/api/Sesija/${postojecaSesija.sesijaId}`
+            : "http://localhost:5178/api/Sesija/zakazi";
+        
+        const metod = postojecaSesija ? "PUT" : "POST";
 
         const data = {
-            mentorId: mentorId,
-            studentId: inputStud.value,
-            predmetId: inputPred.value,
+            mentorId: mentorId.toString(),
+            studentId: postojecaSesija ? "nebitno" : inputStud.value,
+            predmetId: postojecaSesija ? "nebitno" : inputPred.value,
             opis: inputOpis.value,
-            vremeOd: inputVreme.value,
-            vremeDo: inputVreme.value 
+            status: postojecaSesija ? postojecaSesija.status : "Zakazana",
+            vremeOd: new Date(inputVreme.value).toISOString(),
+            vremeDo: new Date(new Date(inputVreme.value).getTime() + 3600000).toISOString()
         };
 
-        await fetch("http://localhost:5178/api/Sesija/zakazi", {
-            method: "POST",
+        await fetch(url, {
+            method: metod,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
