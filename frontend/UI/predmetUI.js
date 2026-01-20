@@ -2,6 +2,7 @@ import { clearApp, showMessage } from "../HELPERS/helper.js";
 import {getPredmeti, deletePredmet, updatePredmet,  addPredmet } from "../API/predmet.js";
 import { getMyPredmeti } from "../API/mentors.js";
 import { addPredmetForMentor } from "../API/predmet.js";
+import { prikaziLepConfirmModal } from "../HELPERS/helper.js";
 
 let predmetZaIzmenu = null;
 
@@ -105,18 +106,18 @@ function createList(predmeti, container, mentorId) {
         const del = document.createElement("button");
         del.textContent = "Obriši";
         del.className = "btn-icon delete-btn";
-        del.addEventListener("click", async () => {
-            if(confirm("Obriši predmet?")) {
+        del.addEventListener("click", () => {
+            prikaziLepConfirmModal("Da li ste sigurni da želite da obrišete ovaj predmet?", async () => {
                 try {
                     await deletePredmet(s.id);
-                    showMessage(container, "Predmet obrisan", "success");
-                    loadPredmeti(container, mentorId);
+                    showMessage(container, "Predmet uspešno obrisan", "success");
+                    loadPredmeti(container);
                 } catch (err) {
-                    showMessage(container, err.message, "error");
+                    console.error(err);
+                    showMessage(container, "Greška pri brisanju: " + err.message, "error");
                 }
-            }
+            });
         });
-
         actions.append(edit, del);
         card.append(title, info, actions);
         grid.appendChild(card);

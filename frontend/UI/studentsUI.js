@@ -2,6 +2,7 @@ import { addStudent, updateStudent, deleteStudent } from "../API/students.js";
 import { getMyStudents } from "../API/mentors.js";
 import { clearApp, showMessage } from "../HELPERS/helper.js";
 import { addStudentForMentor } from "../API/students.js";
+import { prikaziLepConfirmModal } from "../HELPERS/helper.js";
 
 let studentZaIzmenu = null;
 
@@ -124,16 +125,17 @@ function createList(students, container, mentorId) {
         const del = document.createElement("button");
         del.textContent = "Obriši";
         del.className = "btn-icon delete-btn";
-        del.addEventListener("click", async () => {
-            if(confirm("Obriši studenta?")) {
+        del.addEventListener("click", () => {
+            prikaziLepConfirmModal("Da li ste sigurni da želite da obrišete ovog studenta?", async () => {
                 try {
                     await deleteStudent(s.id);
-                    showMessage(container, "Student obrisan", "success");
-                    loadStudents(container, mentorId);
+                    showMessage(container, "Student uspešno obrisan", "success");
+                    loadStudents(container);
                 } catch (err) {
-                    showMessage(container, err.message, "error");
+                    console.error(err);
+                    showMessage(container, "Greška pri brisanju: " + err.message, "error");
                 }
-            }
+            });
         });
 
         actions.append(edit, del);

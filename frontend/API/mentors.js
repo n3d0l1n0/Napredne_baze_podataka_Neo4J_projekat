@@ -39,16 +39,19 @@ export async function addMentor(mentor) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(mentor)
     });
-    if (!res.ok) throw new Error("Greška pri dodavanju mentora");
+    
+    if (!res.ok) throw new Error("Greška pri dodavanju");
+    
+    return await res.json();
 }
 
-export async function updateMentor(id, student) {
+export async function updateMentor(id, mentorData) {
     const res = await fetch(`${BASE_URL}/Mentor/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(student)
+        body: JSON.stringify(mentorData)
     });
-    if (!res.ok) throw new Error("Greška pri izmeni mentora");
+    if (!res.ok) throw new Error("Greška pri izmeni mentora na serveru");
 }
 
 export async function deleteMentor(id) {

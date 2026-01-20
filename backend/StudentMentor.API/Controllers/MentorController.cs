@@ -62,12 +62,26 @@ namespace StudentMentorAPI.Controllers
             return Ok(mentor);
         }
 
+        private async Task<string> GetNextMentorId()
+        {
+            var client = await _service.GetClientAsync();
+            var result = await client.Cypher
+                .Match("(m:Mentor)")
+                .Return(() => Neo4jClient.Cypher.Return.As<int>("max(toInteger(m.id))"))
+                .ResultsAsync;
+
+            int maxId = result.FirstOrDefault();
+            return (maxId + 1).ToString();
+        }
+
         [HttpPost]
         public async Task<ActionResult<Mentor>> Add([FromBody] Mentor mentor)
         {
             var client = await _service.GetClientAsync();
-
-            mentor.lozinka = BCrypt.Net.BCrypt.HashPassword(mentor.lozinka);
+            mentor.id = await GetNextMentorId();
+            string lozinkaZaBazu = !string.IsNullOrEmpty(mentor.lozinka) 
+                ? BCrypt.Net.BCrypt.HashPassword(mentor.lozinka) 
+                : BCrypt.Net.BCrypt.HashPassword("Lozinka123");
 
             await client.Cypher
                 .Create("(m:Mentor {id:$id, ime:$ime, prezime:$prezime, email:$email, lozinka:$lozinka, rejting:$rejting, tip:$tip, admin:$admin})")
@@ -76,7 +90,7 @@ namespace StudentMentorAPI.Controllers
                     ime = mentor.ime,
                     prezime = mentor.prezime,
                     email = mentor.email,
-                    lozinka = mentor.lozinka,
+                    lozinka = lozinkaZaBazu,
                     rejting = mentor.rejting,
                     tip = mentor.tip.ToString(),
                     admin = mentor.admin
@@ -92,22 +106,20 @@ namespace StudentMentorAPI.Controllers
         {
             var client = await _service.GetClientAsync();
 
-            var updated = await client.Cypher
+            await client.Cypher
                 .Match("(m:Mentor)")
                 .Where((Mentor m) => m.id == id)
-                .Set("m += { ime: $ime, prezime: $prezime, email: $email, rejting: $rejting, tip: $tip }")
+                .Set("m.ime = $ime, m.prezime = $prezime, m.email = $email, m.admin = $admin")
                 .WithParams(new
                 {
                     ime = mentor.ime,
                     prezime = mentor.prezime,
                     email = mentor.email,
-                    rejting = mentor.rejting,
-                    tip = mentor.tip.ToString()
+                    admin = mentor.admin
                 })
-                .Return(m => m.As<Mentor>())
-                .ResultsAsync;
+                .ExecuteWithoutResultsAsync();
 
-            return Ok(updated.FirstOrDefault());
+            return Ok(mentor);
         }
 
 
@@ -143,6 +155,7 @@ namespace StudentMentorAPI.Controllers
 
             if (string.IsNullOrEmpty(mentor.lozinka))
                 return Unauthorized("Mentor nema postavljenu lozinku u bazi (polje lozinka je null).");
+            //bool isPasswordValid = (loginData.lozinka == mentor.lozinka) || BCrypt.Net.BCrypt.Verify(loginData.lozinka, mentor.lozinka);
             bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginData.lozinka, mentor.lozinka);
 
             if (!isPasswordValid)
