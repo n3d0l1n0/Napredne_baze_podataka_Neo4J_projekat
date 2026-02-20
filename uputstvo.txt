@@ -1,0 +1,28 @@
+Pokretanje projekta
+
+Neophodne instalacije
+	1. Docker Desktop (za pokretanje Neo4j baze podataka)
+	2. .NET SDK (za pokretanje C# backend-a)
+
+Pokretanje baze podataka (Neo4j)
+	Aplikacija koristi Neo4j grafovsku bazu. Svi podaci se nalaze sačuvani u folderu `neo4j_data` koji je deo ovog repozitorijuma. 
+
+!!! Pre pokretanja Docker komandi, obavezno otpakovati arhivu neo4j_data.zip !!!
+
+	docker run -d --name neo4j-student-mentor -p 7474:7474 -p 7687:7687 -v %cd%\neo4j_data:/data -e NEO4J_AUTH=neo4j/password neo4j:5
+
+Nakon pokretanja, bazi se može pristupiti u browseru na adresi: http://localhost:7474
+- Username: neo4j
+- Password: password
+
+Pokretanje aplikacije (Backend)
+	1. Otvorite novi terminal u folderu gde se nalazi C# projekat (backend).
+	2. Pokrenite komandu: dotnet watch run
+	
+Pokretanje interfejsa (Frontend)
+	Pošto je frontend rađen u čistom JavaScript-u, nije potrebna nikakva dodatna instalacija. 
+
+Nakon pokretanja aplikacije:
+	Ulogovati se kao mentor sa kredencijalima:
+- Username: nikola@mejl
+- Password: Nikola
